@@ -40,8 +40,14 @@ module RedmineCreateIssueWatchersFromEmail
       add_watchers_without_create(obj)
     end
 
+    private
+
     def watcher_role
-      @watcher_role ||= Role.find_by_name("Issue Watcher") # XXX: hard-coded value
+      @watcher_role ||= Role.find_by_name(settings['watcher_role'])
+    end
+
+    def settings
+      @settings ||= Setting['plugin_redmine_create_issue_watchers_from_email']
     end
   end
 end

@@ -1,3 +1,5 @@
 # English strings go here for Rails i18n
 en:
-  my_label: "My label"
+  label_settings_create_watchers: Create watchers
+  label_settings_create_watcher_role: Watcher role
+  label_settings_create_watcher_select_role: Select role

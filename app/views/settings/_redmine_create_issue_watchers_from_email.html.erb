@@ -1,0 +1,10 @@
+<fieldset>
+  <legend><%=l :label_settings_create_watchers %></legend>
+  <p>
+    <%= label_tag :settings_watcher_role, l(:label_settings_create_watcher_role) %>
+    <% prompt = "<option value=\"\">--- #{l(:label_settings_create_watcher_select_role)} ---</option>" %>
+    <% settings = Setting['plugin_redmine_create_issue_watchers_from_email'] %>
+    <% options = options_from_collection_for_select(Role.givable, :name, :name, settings[:watcher_role]) %>
+    <%= select_tag 'settings[watcher_role]', prompt + options %>
+  </p>
+</fieldset>
