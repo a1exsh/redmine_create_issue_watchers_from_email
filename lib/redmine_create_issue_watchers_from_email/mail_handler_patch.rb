@@ -20,7 +20,7 @@ module RedmineCreateIssueWatchersFromEmail
         next if addr.spec == emission_email
         watcher = User.find_by_mail(addr.spec)
         unless watcher
-          unless unknown_user_action == 'create' # TODO: 'register'?
+          unless unknown_user_action =~ /^(create|register)$/
             logger.info "MailHandler: not adding watcher: #{addr.spec}" if logger
             next
           else
