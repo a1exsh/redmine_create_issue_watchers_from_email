@@ -2,7 +2,10 @@ require 'redmine'
 require 'dispatcher'
 
 Dispatcher.to_prepare do
+  require_dependency 'issue'
   require_dependency 'mail_handler'
+
+  Issue.send(:include, RedmineCreateIssueWatchersFromEmail::IssuePatch)
   MailHandler.send(:include, RedmineCreateIssueWatchersFromEmail::MailHandlerPatch)
 end
 
