@@ -1,3 +1,3 @@
 = create_issue_watchers_from_email
 
-Description goes here
+For Redmine versions prior to 2.x, check out the pre-2.x branch.

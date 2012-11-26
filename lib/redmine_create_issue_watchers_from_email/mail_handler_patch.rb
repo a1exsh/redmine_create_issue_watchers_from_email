@@ -16,21 +16,18 @@ module RedmineCreateIssueWatchersFromEmail
       handler_options = MailHandler.send(:class_variable_get, :@@handler_options)
       unknown_user_action = handler_options[:unknown_user]
 
-      (email.to_addrs.to_a + email.cc_addrs.to_a).each do |addr|
-        # `addr' could be an AddressGroup actually, and that doesn't
-        # have the `spec' method...
-        next unless addr.respond_to? :spec
-        spec = addr.spec
+      addrs = (email.to_addrs.to_a + email.cc_addrs.to_a)
+      addrs.each do |addr|
+        next if addr == emission_email
 
-        next if spec == emission_email
-
-        watcher = User.find_by_mail(spec)
+        watcher = User.find_by_mail(addr)
         unless watcher
           unless unknown_user_action =~ /^(create|register)$/
-            logger.info "MailHandler: not adding watcher: #{spec}" if logger
             next
           else
-            watcher = MailHandler.new_user_from_attributes(spec, addr.name)
+            logger.info "MailHandler: creating new watcher user: #{addr}" if logger
+
+            watcher = MailHandler.new_user_from_attributes(addr)
             unless watcher.process_registration
               logger.error "MailHandler: failed to create User: #{watcher.errors.full_messages}" if logger
               next
