@@ -31,8 +31,14 @@ module RedmineCreateIssueWatchersFromEmail
             logger.info "MailHandler: creating new watcher user: #{addr}" if logger
 
             watcher = MailHandler.new_user_from_attributes(addr)
-            watcher.activate if mail_is_from_member
-            unless watcher.process_registration
+            registered = \
+              if mail_is_from_member
+                watcher.activate
+                watcher.save
+              else
+                watcher.process_registration
+              end
+            unless registered
               logger.error "MailHandler: failed to create User: #{watcher.errors.full_messages}" if logger
               next
             end
