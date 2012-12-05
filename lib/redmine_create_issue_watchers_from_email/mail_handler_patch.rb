@@ -13,6 +13,9 @@ module RedmineCreateIssueWatchersFromEmail
       project = obj.project
       emission_email = (project.respond_to?(:email) ? project.email : Setting.mail_from).strip.downcase
 
+      handler_options = MailHandler.send(:class_variable_get, :@@handler_options)
+      notify_user = !handler_options[:no_account_notice]
+
       sender_addr = email.from.first
       mail_is_from_member = project.users.exists?(User.find_by_mail(sender_addr))
 
@@ -26,12 +29,12 @@ module RedmineCreateIssueWatchersFromEmail
 
           watcher = MailHandler.new_user_from_attributes(addr)
           registered = \
-          if mail_is_from_member
-            watcher.activate
-            watcher.save
-          else
-            watcher.process_registration
-          end
+            if mail_is_from_member
+              watcher.activate
+              watcher.save
+            else
+              watcher.process_registration(notify_user)
+            end
           unless registered
             logger.error "MailHandler: failed to create User: #{watcher.errors.full_messages}" if logger
             next
