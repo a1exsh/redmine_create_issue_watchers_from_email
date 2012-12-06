@@ -9,6 +9,17 @@ module RedmineCreateIssueWatchersFromEmail
     end
 
     def add_watchers_with_create(obj)
+      unless watcher_role
+        logger.error "MailHandler: cannot create watchers from email, watcher_role unconfigured!" if logger
+      else
+        create_watchers_from_email(obj)
+      end
+      add_watchers_without_create(obj)
+    end
+
+    private
+
+    def create_watchers_from_email(obj)
       # check our emission email to avoid self-notify hell cycles
       project = obj.project
       emission_email = (project.respond_to?(:email) ? project.email : Setting.mail_from).strip.downcase
@@ -16,8 +27,7 @@ module RedmineCreateIssueWatchersFromEmail
       handler_options = MailHandler.send(:class_variable_get, :@@handler_options)
       notify_user = !handler_options[:no_account_notice]
 
-      sender_addr = email.from.first
-      mail_is_from_member = project.users.exists?(User.find_by_mail(sender_addr))
+      mail_is_from_member = project.users.exists?(User.find_by_mail(sender_email)) if sender_email
 
       addrs = (email.to_addrs.to_a + email.cc_addrs.to_a)
       addrs.each do |addr|
@@ -45,11 +55,7 @@ module RedmineCreateIssueWatchersFromEmail
           project.members << member
         end
       end
-
-      add_watchers_without_create(obj)
     end
-
-    private
 
     def watcher_role
       @watcher_role ||= Role.find_by_name(settings['watcher_role'])
