@@ -4,13 +4,13 @@ module RedmineCreateIssueWatchersFromEmail
 
     def self.included(base)
       base.class_eval do
-        alias_method_chain :save, :activate_watchers
+        alias_method_chain :update, :activate_watchers
       end
     end
 
-    def save_with_activate_watchers(*args)
+    def update_with_activate_watchers(*args)
       activate_watchers unless closed?
-      save_without_activate_watchers(*args)
+      update_without_activate_watchers(*args)
     end
 
     private
@@ -21,7 +21,7 @@ module RedmineCreateIssueWatchersFromEmail
     end
 
     def activate_user(user)
-      user.activate! unless user.locked?
+      user.activate! unless user.locked? || user.active?
     end
   end
 end
