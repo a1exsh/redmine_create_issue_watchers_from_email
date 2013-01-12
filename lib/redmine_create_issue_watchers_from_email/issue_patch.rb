@@ -9,8 +9,9 @@ module RedmineCreateIssueWatchersFromEmail
     end
 
     def update_with_activate_watchers(*args)
-      activate_watchers unless closed?
-      update_without_activate_watchers(*args)
+      update_without_activate_watchers(*args).tap do |x|
+        activate_watchers if x && !closed?
+      end
     end
 
     private
